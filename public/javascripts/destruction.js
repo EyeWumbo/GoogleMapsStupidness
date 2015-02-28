@@ -1,3 +1,106 @@
+var markers = [];
+var areas = [];
+var totalArea = 100;
+
+function removeFromMarkers(marker){
+  for(var i = 0; i < markers.length; i ++){
+    if(markers[i] === marker){
+      markers.splice(i, 1);
+    }
+  }
+}
+
+function removeFromAreas(area){
+  for(var i = 0; i < areas.length; i ++){
+    if(areas[i] === area){
+      areas.splice(i, 1);
+    }
+  }
+}
+
+function getRectArea(rect){
+  var sw = rect.bounds.getSouthWest();
+  var ne = rect.bounds.getNorthEast();
+  var southWest = new google.maps.LatLng(sw.lat(), sw.lat());
+  var southEast = new google.maps.LatLng(sw.lat(), ne.lat());
+  var northWest = new google.maps.LatLng(ne.lat(), sw.lat());
+  var northEast = new google.maps.LatLng(ne.lat(), ne.lat());
+  return google.maps.geometry.spherical.computeArea([northEast, northWest, southWest, southEast]) / (1000000);
+}
+
+function genRectWithListeners(details){
+  var rectangle = new google.maps.Rectangle(details);
+  google.maps.event.addListener(rectangle, 'dblclick', function(e){
+    rectangle.setMap(null);
+  });
+  google.maps.event.addListener(rectangle, 'resize', function(e){
+    if(totalArea - area < 0){
+      alert('Overstepping area limitations')
+      rectangle.setMap(null);
+      return;
+    }
+    totalArea -= area;
+  })
+  area = getRectArea(rectangle);
+  if(totalArea - area < 0){
+    alert('Overstepping area limitations')
+    rectangle.setMap(null);
+    return;
+  }
+  totalArea -= area;
+  $('#total-area').text(totalArea);
+  areas.push(rectangle);
+}
+
+function genMarkerWithListeners(details){
+  if(markers.length == 2){
+    alert('You can only have two markers up at a time');
+    return;
+  }
+  if(areas.length == 5){
+    alert('You can only have 5 areas at a time.');
+    return;
+  }
+  marker = new google.maps.Marker(details);
+  google.maps.event.addListener(marker, 'click', function(e){
+    removeFromMarkers(marker);
+    marker.setMap(null);
+  })
+  markers.push(marker);
+  if(markers.length == 2){
+    genRectWithListeners({
+      strokeColor: '#A6A938',
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      fillColor: '#A6A938',
+      fillOpacity: 0.3,
+      map: details.map,
+      draggable: true,
+      editable: true,
+      bounds: new google.maps.LatLngBounds(
+        markers[0].position,
+        markers[1].position
+      )
+    })
+    markers.forEach(function(el, index, array){
+      el.setMap(null);
+    });
+    markers = [];
+  }
+  return marker;
+}
+
+function genMapWithListeners(options){
+  map = new google.maps.Map(document.getElementById('map-canvas'), options);
+  google.maps.event.addListener(map, 'click', function(e){
+    marker = genMarkerWithListeners({
+      position: e.latLng,
+      map: map,
+      draggable: true
+    });
+  });
+}
+
 function initialize() {
   var lat, lon = 0;
   if(navigator.geolocation){
@@ -5,17 +108,19 @@ function initialize() {
       var mapOptions = {
         center: { lat: position.coords.latitude, lng: position.coords.longitude},
         zoom: 10,
-        minZoom: 3
+        minZoom: 3,
+        disableDoubleClickZoom: true
       };
-      var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+      genMapWithListeners(mapOptions);
     }, function(err){
       if(err.code == err.PERMISSION_DENIED){
         var mapOptions = {
           center: { lat: 55.75, lng: 37.6167},
           zoom: 10,
-          minZoom: 3
+          minZoom: 3,
+          disableDoubleClickZoom: true
         };
-        var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+        genMapWithListeners(mapOptions);
       }
     });
   }
@@ -23,14 +128,14 @@ function initialize() {
     var mapOptions = {
         center: { lat: 55.75, lng: 37.6167},
         zoom: 10,
-        minZoom: 3
+        minZoom: 3,
+        disableDoubleClickZoom: true
       };
-    var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+    genMapWithListeners(mapOptions);
   }
-
-	
-	
 }
+
 $(function(){
   google.maps.event.addDomListener(window, 'load', initialize);
+  $('#total-area').text(totalArea);
 })
