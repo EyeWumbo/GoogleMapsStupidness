@@ -57,4 +57,8 @@ app.use(function(err, req, res, next) {
 });
 
 
+app.listen(1337, function(){
+    console.log('It works on port 1337! Go to localhost:1337 in your browser.');
+});
+
 module.exports = app;
