@@ -1,9 +1,7 @@
 extends layout
 
 block content
-	h1= title
-	google.maps.event.addDomListener(window, 'load', initialize)
-	
-	
-
-
+  #map-canvas
+  a(href='#', id='add-rectangle') Add a rectangle
+  div(id='box-container')
+  a(href='#', id='report-area') Submit Results

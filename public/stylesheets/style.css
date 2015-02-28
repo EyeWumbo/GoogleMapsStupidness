@@ -1,7 +1,6 @@
 body {
-  padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-  position: relative;
+  padding-top: 30px;
 }
 
 a {
@@ -9,8 +8,13 @@ a {
 }
 
 .hitbox {
-  position: absolute;
-  left: 0;
-  top: 0;
   border: solid 2px blue;
+}
+
+#map-canvas {
+  margin-top: 40px;
+  width: 80%;
+  height: 80%;
+  background-color: #999;
+  margin: 0 auto;
 }
