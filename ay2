@@ -1,0 +1,11 @@
+public : javascripts and style sheets
+routes : logic for rendering pages
+views : html, put together by the controllers.
+dont touch layout
+css or javascript if i want to 
+
+put something into index and layout 
+
+<iframe width="600" height="450" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/view?zoom=5&center=46.2276%2C2.2137&key=AIzaSyCj_qgr3LfNBLsrQCjTx13z6xF-awzjA98"></iframe>
+
+

@@ -3,6 +3,14 @@ body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
+html { 
+  background: url(http://b.fastcompany.net/multisite_files/fastcompany/imagecache/1280/poster/2014/02/3026089-poster-p-1-ask-the-experts-how-do-i-find-the-motivation-to-get-to-the-next-stage-of-my.jpg) no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
 a {
   color: #00B7FF;
 }
