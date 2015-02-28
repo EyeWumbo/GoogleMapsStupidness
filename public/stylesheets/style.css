@@ -1,8 +1,16 @@
 body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  position: relative;
 }
 
 a {
   color: #00B7FF;
+}
+
+.hitbox {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border: solid 2px blue;
 }
