@@ -13,7 +13,8 @@ interact('.drag')
   .draggable({
     inertia: true,
     restrict: {
-      endOnly: true
+      endOnly: true,
+      restriction: 'parent'
     },
     onmove: function(e) {
       var target = e.target,
