@@ -1,6 +1,7 @@
 body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   padding-top: 30px;
+  
 }
 
 /*html { 
@@ -12,14 +13,27 @@ body {
 }
 */
 a {
+  text-align: center;
   color: #00B7FF;
+  text-shadow: 5px 5px 5px #888888
+
 }
 
+h1{
+  text-align: center;
+  text-shadow: 5px 5px 5px red;
+}
+
+a:hover{
+  color: black;
+}
 .hitbox {
   border: solid 2px blue;
 }
 
 #map-canvas {
+  border: 10px ridge red;
+  box-shadow: 10px 10px 5px #888888;
   margin-top: 40px;
   width: 80%;
   height: 80%;

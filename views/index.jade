@@ -1,7 +1,7 @@
 extends layout
 
 block content
-
+  h1= title
   #map-canvas
   #map-overlay
   a(href='#', id='report-area') Submit Results
@@ -9,3 +9,4 @@ block content
     | Total Area:&nbsp;
     span#total-area 
   a(href='#', id='done-placing') Done Placing
+
