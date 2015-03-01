@@ -9,6 +9,8 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -56,8 +58,14 @@ app.use(function(err, req, res, next) {
     });
 });
 
+io.on('connection', function(socket){
+    socket.on('submits', function(content){
+        console.log(content);
+        socket.broadcast.emit('attack', content);
+    })
+})
 
-app.listen(1337, function(){
+http.listen(1337, function(){
     console.log('It works on port 1337! Go to localhost:1337 in your browser.');
 });
 

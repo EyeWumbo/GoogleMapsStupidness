@@ -1,6 +1,8 @@
 var markers = [];
 var areas = [];
 var totalArea = 100;
+var user_markers = [];
+var placing_pins = true;
 
 function removeFromMarkers(marker){
   for(var i = 0; i < markers.length; i ++){
@@ -91,13 +93,60 @@ function genMarkerWithListeners(details){
 }
 
 function genMapWithListeners(options){
-  map = new google.maps.Map(document.getElementById('map-canvas'), options);
+  var map = new google.maps.Map(document.getElementById('map-canvas'), options);
   google.maps.event.addListener(map, 'click', function(e){
-    marker = genMarkerWithListeners({
-      position: e.latLng,
-      map: map,
-      draggable: true
-    });
+
+    if(placing_pins){
+      if(user_markers.length >= 10){
+        alert('Max user markers');
+        return;
+      }
+      user_marker = new google.maps.Marker({
+        draggable: true,
+        map: map,
+        position: e.latLng
+      });
+      google.maps.event.addListener(user_marker, 'dblclick', function(e){
+        user_markers.forEach(function(thing, index, arr){
+          if(thing === user_marker){
+            user_markers.splice(index, 1);
+            return;
+          }
+        });
+      });
+
+      user_markers.push(user_marker);
+    }
+    else{
+      marker = genMarkerWithListeners({
+        position: e.latLng,
+        map: map,
+        draggable: true
+      });
+    }
+    
+  });
+  socket.on('attack', function(content){
+    generatedAttack = [];
+    content.areas.forEach(function(thing, index, arr){
+      genAttackArea(thing, map);
+    })
+  });
+}
+
+var genAttackArea = function(bounds, map){
+  console.log(bounds);
+  return new google.maps.Rectangle({
+    strokeColor: '#5C1212',
+    strokeOpacity: 0.8,
+    strokeWeight: 2,
+    fillColor: '#5C1212',
+    fillOpacity: 0.3,
+    map: map,
+    bounds: new google.maps.LatLngBounds(
+      new google.maps.LatLng(bounds['sw'][0], bounds['sw'][1]),
+      new google.maps.LatLng(bounds['ne'][0], bounds['ne'][1])
+    )
   });
 }
 
@@ -138,4 +187,21 @@ function initialize() {
 $(function(){
   google.maps.event.addDomListener(window, 'load', initialize);
   $('#total-area').text(totalArea);
+  $('#report-area').click(function(e){
+    e.preventDefault();
+    bounds = [];
+    areas.forEach(function(thing, index, arr){
+      set = {};
+      set['sw'] = [thing.getBounds().getSouthWest().lat(), thing.getBounds().getSouthWest().lng()]
+      set['ne'] = [thing.getBounds().getNorthEast().lat(), thing.getBounds().getNorthEast().lng()]
+      bounds.push(set);
+    })
+    socket.emit('submits', {areas: bounds});
+    areas.forEach(function(thing, index, arr){
+      thing.setOptions({strokeColor: '#216521', fillColor: '#216521'});
+      thing.setEditable(false);
+      thing.setDraggable(false);
+    });
+    areas = [];
+  })
 })
