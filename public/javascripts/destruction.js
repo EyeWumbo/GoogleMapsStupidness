@@ -35,7 +35,9 @@ function genRectWithListeners(details){
   google.maps.event.addListener(rectangle, 'dblclick', function(e){
     rectangle.setMap(null);
   });
+  area = getRectArea(rectangle);
   google.maps.event.addListener(rectangle, 'resize', function(e){
+    alert('hullo')
     if(totalArea - area < 0){
       alert('Overstepping area limitations')
       rectangle.setMap(null);
@@ -43,7 +45,6 @@ function genRectWithListeners(details){
     }
     totalArea -= area;
   })
-  area = getRectArea(rectangle);
   if(totalArea - area < 0){
     alert('Overstepping area limitations')
     rectangle.setMap(null);
@@ -92,6 +93,13 @@ function genMarkerWithListeners(details){
   return marker;
 }
 
+function hackyContains(bounds, point){
+  sw_dist = google.maps.geometry.spherical.computeDistanceBetween(point, bounds.getSouthWest());
+  ne_dist = google.maps.geometry.spherical.computeDistanceBetween(point, bounds.getNorthEast());
+  center_dist = google.maps.geometry.spherical.computeDistanceBetween(point, bounds.getCenter());
+  return center_dist < ne_dist && center_dist < sw_dist;
+}
+
 function genMapWithListeners(options){
   var map = new google.maps.Map(document.getElementById('map-canvas'), options);
   google.maps.event.addListener(map, 'click', function(e){
@@ -129,13 +137,18 @@ function genMapWithListeners(options){
   socket.on('attack', function(content){
     generatedAttack = [];
     content.areas.forEach(function(thing, index, arr){
-      genAttackArea(thing, map);
+      temp = genAttackArea(thing, map).getBounds();
+      user_markers.forEach(function(thing2, index, arr){
+        if(hackyContains(temp, thing2.getPosition())){
+          thing2.setMap(null);
+          user_markers.splice(index, 1);
+        }
+      })
     })
   });
 }
 
 var genAttackArea = function(bounds, map){
-  console.log(bounds);
   return new google.maps.Rectangle({
     strokeColor: '#5C1212',
     strokeOpacity: 0.8,
