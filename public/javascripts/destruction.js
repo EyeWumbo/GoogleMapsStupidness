@@ -204,4 +204,8 @@ $(function(){
     });
     areas = [];
   })
+  $('#done-placing').click(function(e){
+    placing_pins = false;
+    $('#done-placing').remove();
+  })
 })
