@@ -1,6 +1,8 @@
 var markers = [];
 var areas = [];
 var totalArea = 100;
+var user_markers = [];
+var placing_pins = true;
 
 function removeFromMarkers(marker){
   for(var i = 0; i < markers.length; i ++){
@@ -93,18 +95,43 @@ function genMarkerWithListeners(details){
 function genMapWithListeners(options){
   var map = new google.maps.Map(document.getElementById('map-canvas'), options);
   google.maps.event.addListener(map, 'click', function(e){
-    marker = genMarkerWithListeners({
-      position: e.latLng,
-      map: map,
-      draggable: true
-    });
+
+    if(placing_pins){
+      if(user_markers.length >= 10){
+        alert('Max user markers');
+        return;
+      }
+      user_marker = new google.maps.Marker({
+        draggable: true,
+        map: map,
+        position: e.latLng
+      });
+      google.maps.event.addListener(user_marker, 'dblclick', function(e){
+        user_markers.forEach(function(thing, index, arr){
+          if(thing === user_marker){
+            user_markers.splice(index, 1);
+            return;
+          }
+        });
+      });
+
+      user_markers.push(user_marker);
+    }
+    else{
+      marker = genMarkerWithListeners({
+        position: e.latLng,
+        map: map,
+        draggable: true
+      });
+    }
+    
   });
   socket.on('attack', function(content){
     generatedAttack = [];
     content.areas.forEach(function(thing, index, arr){
-      genAttackArea(genAttackArea(thing, map));
+      genAttackArea(thing, map);
     })
-  })  
+  });
 }
 
 var genAttackArea = function(bounds, map){
@@ -116,8 +143,6 @@ var genAttackArea = function(bounds, map){
     fillColor: '#5C1212',
     fillOpacity: 0.3,
     map: map,
-    draggable: true,
-    editable: true,
     bounds: new google.maps.LatLngBounds(
       new google.maps.LatLng(bounds['sw'][0], bounds['sw'][1]),
       new google.maps.LatLng(bounds['ne'][0], bounds['ne'][1])
@@ -172,6 +197,11 @@ $(function(){
       bounds.push(set);
     })
     socket.emit('submits', {areas: bounds});
-    alert('pushed');
+    areas.forEach(function(thing, index, arr){
+      thing.setOptions({strokeColor: '#216521', fillColor: '#216521'});
+      thing.setEditable(false);
+      thing.setDraggable(false);
+    });
+    areas = [];
   })
 })
